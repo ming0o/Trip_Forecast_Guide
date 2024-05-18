@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import wave from '../assets/wave.mp4';
 
@@ -35,6 +36,11 @@ const HeaderContent = styled.div`
 `;
 
 function Header() {
+    const navigate = useNavigate();
+    const navigateHome = () => {
+        navigate('/');
+    };
+
     return (
         <HeaderContainer>
             <VideoBackground>
@@ -43,7 +49,7 @@ function Header() {
                     지원하지 않는 브라우저입니다.
                 </VideoContent>
             </VideoBackground>
-            <HeaderContent>
+            <HeaderContent onClick={navigateHome}>
                 TRIPCAST
             </HeaderContent>
         </HeaderContainer>
