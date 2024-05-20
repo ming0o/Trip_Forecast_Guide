@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as T from './Styles';
 import wave from '../../assets/wave.mp4';

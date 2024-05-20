@@ -1,10 +1,9 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import wave from '../assets/wave.mp4';
 
 const HeaderContainer = styled.div`
-  position: absolute;
+  position: fixed;
   display: flex;
   width: 100%;
   height: 10%;
@@ -31,7 +30,7 @@ const HeaderContent = styled.div`
     align-items: center;
     color: #ffffff;
     font-size: 2rem;
-    margin-left: 50px;
+    margin-left: 6%;
     letter-spacing: 5px;
 `;
 

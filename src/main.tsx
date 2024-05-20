@@ -1,13 +1,17 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter as Router } from 'react-router-dom'; // BrowserRouter 사용
-import App from './App';
+import ReactDOM from "react-dom/client";
+import { BrowserRouter as Router } from 'react-router-dom';
 import './index.css';
+import App from './App';
 
-// eslint-disable-next-line react/no-render-return-value
-ReactDOM.render(
-  <Router>
-    <App />
-  </Router>,
-  document.getElementById('root')
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Failed to find the root element');
+const root = ReactDOM.createRoot(rootElement);
+
+root.render(
+  <React.StrictMode>
+    <Router>
+      <App />
+    </Router>,
+  </React.StrictMode>
 );
