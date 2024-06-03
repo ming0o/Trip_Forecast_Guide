@@ -59,12 +59,19 @@ export const Table = styled.table`
 export const Th = styled.th`
     border-bottom: 1px solid #d9d9d9;
     padding: 8px;
-    text-align: left;
+    font-size: 1.5rem;
+    text-align: center;
 `;
 
 export const Td = styled.td`
     border-bottom: 1px solid #d9d9d9;
     padding: 8px;
+    font-size: 1.3rem;
+    text-align: center;
+    vertical-align: middle;
 `;
 
-export const Tr = styled.tr``;
+export const Tr = styled.tr`
+    font-size: 1.3rem;
+    text-align: center;
+`;
