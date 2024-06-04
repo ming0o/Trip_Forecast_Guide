@@ -13,6 +13,16 @@ const getCurrentDate = () => {
     return `${year}${month}${day}${hours}`;
 }
 
+// 랜덤한 COURSE_ID 10개를 생성하는 함수
+const getRandomCourseIds = (count: any, maxNumber: any) => {
+    const courseIds = [];
+    for (let i = 0; i < count; i++) {
+        const randomNumber = Math.floor(Math.random() * maxNumber) + 1;
+        courseIds.push(String(randomNumber));
+    }
+    return courseIds;
+}
+
 function CoursePage() {
     const [courseData, setCourseData] = useState<TouristSpot[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -21,44 +31,67 @@ function CoursePage() {
 
     // 필요한 요청 변수들
     const pageNo = 1;
-    const numOfRows = 100000;
+    const numOfRows = 100;
     const dataType = 'JSON';
     const CURRENT_DATE = getCurrentDate();
     const HOUR = 24;
-    const COURSE_ID = '30';
+    const COURSE_IDS = getRandomCourseIds(5, 438);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const url = `${BASE_URL}?serviceKey=${API_KEY}&pageNo=${pageNo}&numOfRows=${numOfRows}&dataType=${dataType}&CURRENT_DATE=${CURRENT_DATE}&HOUR=${HOUR}&COURSE_ID=${COURSE_ID}`;
-                const response = await fetch(url);
+                const allData = [];
+                for (const COURSE_ID of COURSE_IDS) {
+                    const url = `${BASE_URL}?serviceKey=${API_KEY}&pageNo=${pageNo}&numOfRows=${numOfRows}&dataType=${dataType}&CURRENT_DATE=${CURRENT_DATE}&HOUR=${HOUR}&COURSE_ID=${COURSE_ID}`;
+                    const response = await fetch(url);
 
-                // 응답을 텍스트로 출력
-                const textResponse = await response.text();
-                console.log(textResponse);
+                    // 응답을 텍스트로 출력
+                    const textResponse = await response.text();
+                    // JSON으로 파싱 시도
+                    if (response.headers.get('content-type')?.includes('application/json')) {
+                        const data = JSON.parse(textResponse);
 
-                // JSON으로 파싱 시도
-                if (response.headers.get('content-type')?.includes('application/json')) {
-                    const data = JSON.parse(textResponse);
-                    // 데이터가 배열인지 확인하고 변환
-                    if (data.response?.body?.items?.item) {
-                        setCourseData(Array.isArray(data.response.body.items.item) ? data.response.body.items.item : [data.response.body.items.item]);
+                        // NO_DATA 응답을 처리
+                        if (data.response?.header?.resultCode === "03") {
+                            console.log(`No data for COURSE_ID ${COURSE_ID}`);
+                            continue;
+                        }
+
+                        // 데이터가 배열인지 확인하고 변환
+                        if (data.response?.body?.items?.item) {
+                            const items = Array.isArray(data.response.body.items.item) ? data.response.body.items.item : [data.response.body.items.item];
+                            allData.push(...items);
+                        } else {
+                            throw new Error('잘못된 응답 형식입니다.');
+                        }
                     } else {
-                        throw new Error('잘못된 응답 형식입니다.');
+                        throw new Error('JSON 형식이 아닙니다.');
                     }
-                } else {
-                    throw new Error('JSON 형식이 아닙니다.');
                 }
+                setCourseData(allData);
             } catch (e) {
                 console.error(e);
             }
         };
         fetchData();
-    }, []);
+    }, [CURRENT_DATE]);
 
-    const filteredData = courseData.filter(item =>
-        item.courseAreaName.includes(searchTerm) || item.spotAreaName.includes(searchTerm)
-    );
+    // 검색어를 바탕으로 데이터를 필터링하는 함수
+    const filterData = (term: string) => {
+        const lowerCaseTerm = term.toLowerCase().trim();
+        console.log("검색어:", lowerCaseTerm); // 검색어 출력
+        return courseData.filter(item => {
+            console.log("코스 지역명:", item.courseAreaName.toLowerCase()); // 코스 지역명 출력
+            console.log("관광지 지역명:", item.spotAreaName.toLowerCase()); // 관광지 지역명 출력
+            console.log("관광지명:", item.spotName.toLowerCase()); // 관광지명 출력
+            const courseMatches = item.courseAreaName.toLowerCase().includes(lowerCaseTerm);
+            const spotAreaMatches = item.spotAreaName.toLowerCase().includes(lowerCaseTerm);
+            const spotMatches = item.spotName.toLowerCase().includes(lowerCaseTerm);
+            return courseMatches || spotAreaMatches || spotMatches;
+        });
+    }
+
+    const filteredData = filterData(searchTerm);
 
     const courseMap = new Map<string, Set<string>>(); // 중복된 관광지 제거 후 저장
     filteredData.forEach(item => {
